@@ -1,0 +1,426 @@
+/* ============================================================
+   设计令牌与全局样式
+   视觉还原 Imgbed-design/variant-a.html（UPLINK 终端风）
+   ============================================================ */
+
+:root {
+  /* 底色层次：bg 最暗，panel 逐级提亮，用来堆叠「面板」的空间感 */
+  --bg: #08090a;
+  --panel: #0d0f11;
+  --panel-2: #121517;
+
+  /* 描边：line 用于分隔，line-2 用于可交互元素 */
+  --line: #1e2428;
+  --line-2: #2b3439;
+
+  /*
+   * 文字层级。每一级都按 WCAG AA（对正文要求 ≥4.5:1）选取，括号内是对最亮底色
+   * --panel-2 的实测对比度 —— 按最坏情况校准，换到更暗的底色只会更清晰。
+   *
+   * 之前的问题：最常用的一级是一个硬编码的深灰，对比度只有 1.85:1，
+   * 而导航、表头、表单标签、状态栏全都用它，等于把有效信息画成了装饰。
+   */
+  --fg: #cfdadb; /* 12.8:1  正文、数值 */
+  --dim-2: #a3b2b6; /*  8.4:1  次要但重要 */
+  --dim: #7f8e92; /*  5.4:1  弱化说明、图标 */
+  --dim-3: #738287; /*  4.6:1  标签、表头、placeholder —— 最低一级 */
+
+  /* 磷光绿：唯一的强调色，克制使用 */
+  --acc: #35ff9e;
+  /* 聚焦态专用：比 acc-dim 亮、比 acc 暗，够看清但不会跳出来喊 */
+  --acc-mid: #2fa876;
+  --acc-dim: #1a6c47;
+
+  --warn: #ffb347;
+  --err: #ff5f57;
+
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+
+button,
+input {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+::selection {
+  background: var(--acc);
+  color: #04140c;
+}
+
+/* ==================== 滚动条 ==================== */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #232b2f;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #33403f;
+}
+
+/* ==================== CRT 叠加层 ==================== */
+.crt {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+}
+.crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* 扫描线：每 3px 一条 1px 暗线。
+     强度刻意压得比较克制 —— 它是氛围，不该抢走文字的对比度。 */
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.26) 0 1px, transparent 1px 3px);
+  opacity: 0.3;
+  mix-blend-mode: multiply;
+}
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* 暗角：把视线压回中心，但中心区域保持干净 */
+  background: radial-gradient(128% 104% at 50% 46%, transparent 52%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* ==================== 终端窗口 ==================== */
+.term {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: linear-gradient(180deg, #0b0d0e, var(--bg) 40%);
+  border: 1px solid var(--line);
+  box-shadow: 0 0 0 1px #000, 0 30px 80px -20px #000;
+}
+
+.term__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+  height: 30px;
+  padding: 0 12px;
+  background: #111314;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.lights {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+.lights i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: block;
+  background: var(--line-2);
+}
+.lights i:nth-child(1) {
+  background: var(--err);
+}
+.lights i:nth-child(2) {
+  background: var(--warn);
+}
+.lights i:nth-child(3) {
+  background: var(--acc);
+}
+
+.term__status {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: none;
+  height: 24px;
+  padding: 0 12px;
+  background: #111314;
+  border-top: 1px solid var(--line);
+  font-size: 10.5px;
+  color: var(--dim);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.term__status b {
+  color: var(--dim-2);
+  font-weight: 400;
+}
+.term__status .spacer {
+  margin-left: auto;
+}
+
+/* ==================== 提示与光标 ==================== */
+.pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--acc);
+  display: inline-block;
+  box-shadow: 0 0 8px var(--acc);
+  animation: pulse 2.4s ease-in-out infinite;
+  vertical-align: 1px;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* 光标：刻意做得克制。
+   它只是个装饰性的位置提示，不该比页面真正的内容更抢眼 ——
+   所以用「细竖条 + 暗绿 + 缓慢呼吸」，而不是「高亮方块 + 硬闪烁」，
+   后者是屏幕上最吸睛的东西，会把视线从表单上拽走。 */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 13px;
+  background: var(--acc-mid);
+  vertical-align: -2px;
+  animation: caret-breathe 2.6s ease-in-out infinite;
+}
+@keyframes caret-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.08;
+  }
+}
+
+/* 逐行浮现，用于启动日志 */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ==================== 无障碍：尊重系统的「减少动态效果」 ====================
+   终端风带入场动画与光标闪烁，对有前庭敏感的用户并不友好；
+   更要紧的是：入场动画的起始态是 opacity:0，一旦动画因任何原因没跑起来，
+   内容就会**永远不可见**。所以这里让动画瞬时完成，而不是简单删掉。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* 扫描线本身不含运动，保留氛围，但降低强度 */
+  .crt::before {
+    opacity: 0.22;
+  }
+}
+
+/* ==================== 表单 ====================
+   输入框是整个登录页唯一的操作对象，必须一眼看得出「现在在哪个框」。
+   三件事一起做：默认态提亮描边与底色、聚焦态给足信号、左侧强调条指示当前位置。 */
+.field {
+  position: relative;
+  display: grid;
+  grid-template-columns: 20px 72px 1fr;
+  align-items: center;
+  gap: 0 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-2);
+  background: #090c0e;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    box-shadow 0.24s;
+}
+
+.field:hover {
+  border-color: #3d4a50;
+  background: var(--panel-2);
+}
+
+/* 聚焦态：明确即可，不要发光「喊」出来。
+   靠描边提亮 + 左侧强调条两点定位就够，去掉外发光。 */
+.field:focus-within {
+  border-color: var(--acc-mid);
+  background: #0b1311;
+  box-shadow: inset 0 0 0 1px rgba(53, 255, 158, 0.1);
+}
+
+/* 左侧强调条：扫一眼就知道光标在哪一行。比整框发光克制，指向性反而更强 */
+.field::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  background: transparent;
+  transition: background 0.18s;
+}
+.field:focus-within::before {
+  background: var(--acc-mid);
+}
+
+/* 标签前的命令行提示符，聚焦时点亮 */
+.field .cue {
+  color: var(--dim-3);
+  font-size: 12px;
+  transition: color 0.18s;
+}
+.field:focus-within .cue {
+  color: var(--acc-mid);
+}
+
+.field .lab {
+  color: var(--dim);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: color 0.18s;
+}
+.field:focus-within .lab {
+  color: var(--acc-mid);
+}
+
+.field input {
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: #eaf5f2;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  width: 100%;
+  padding: 2px 0;
+  caret-color: var(--acc);
+}
+.field input::placeholder {
+  color: var(--dim-3);
+  letter-spacing: 0.05em;
+}
+.field input:-webkit-autofill {
+  -webkit-text-fill-color: #eaf5f2;
+  -webkit-box-shadow: 0 0 0 1000px #090c0e inset;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  background: var(--acc);
+  color: #04140c;
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 11px;
+  transition: background 0.16s, color 0.16s;
+}
+.btn:hover:not(:disabled) {
+  background: #5cffb4;
+}
+.btn:disabled {
+  background: #16211c;
+  color: #6d8c7c;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--line-2);
+  color: var(--dim-2);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition: 0.16s;
+}
+.btn-ghost:hover {
+  color: var(--fg);
+  border-color: var(--acc-dim);
+}
+
+/* ==================== 提示条 ==================== */
+.note {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 9px 12px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  border: 1px solid;
+}
+.note--err {
+  border-color: #40201e;
+  background: #1a0f0e;
+  color: #ff8b84;
+}
+.note--warn {
+  border-color: #3d3220;
+  background: #17130c;
+  color: var(--warn);
+}
+.note--dim {
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--dim-2);
+}

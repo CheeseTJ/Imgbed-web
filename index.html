@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>UPLINK — 图床</title>
+
+    <!-- SVG 优先：矢量在任何 DPR 下都清晰；PNG 与 ICO 是给不支持 SVG 图标的旧浏览器兜底 -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <!--
+      图片域名与页面域名跨源，预连接可以把首次取图的 DNS + TCP + TLS 握手提前掉。
+      实测首个请求的 TLS 握手约 130ms，复用连接后只要 60ms。
+      两处都不能随手改：
+        1. 不能加 crossorigin —— 图片走普通 <img>，是 no-cors 且带凭据的请求；
+           加了 crossorigin 会建一条匿名连接，真实请求不会复用它，等于白握手。
+        2. preconnect 与 dns-prefetch 必须拆成两条标签 —— 合并写法会触发 Safari
+           取消 preconnect 的 bug；拆开还能给不支持 preconnect 的浏览器兜底。
+      域名须与后端 r2.public_base 保持一致。
+    -->
+    <link rel="preconnect" href="https://img.june-t.top" />
+    <link rel="dns-prefetch" href="https://img.june-t.top" />
+
+    <!--
+      字体这边正好相反：gstatic 按 CSS Fonts 规范以匿名模式加载，必须带 crossorigin，
+      漏写就只剩 DNS 查找生效。googleapis 只负责下发 CSS（不带 CORS），不需要。
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

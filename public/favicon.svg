@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    UPLINK 图床图标。
+    刻意不用圆角：整个界面的视觉语言是 1px 直角边框 + 磷光绿，圆角会破坏一致性。
+    32×32 视口下每个单位等于 16px 时的 0.5px，所以边框取 2 单位 = 1px。
+    注：XML 注释里不能出现连续两个减号，所以下面引用主题变量时不带前缀。
+  -->
+  <title>UPLINK 图床</title>
+
+  <!-- 底色，取主题的 bg -->
+  <rect width="32" height="32" fill="#08090a" />
+
+  <!-- 画框，取主题的 line-2 与 acc -->
+  <rect x="1" y="1" width="30" height="30" fill="#0d0f11" stroke="#35ff9e" stroke-width="2" />
+
+  <!-- 尺寸标记，方形以呼应界面的直角风格 -->
+  <rect x="20" y="6" width="6" height="6" fill="#35ff9e" />
+
+  <!-- 山脊：主峰加次峰，底边留 5 单位避免贴框 -->
+  <polygon points="4,25 12,12 18,20 21,16.5 27,25" fill="#35ff9e" />
+</svg>
