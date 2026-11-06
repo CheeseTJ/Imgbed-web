@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "imgbed-web",
+  "account_id": "1b53bebb48213cfdf6e43cd71d931741",
+  "compatibility_date": "2026-06-01",
+  // 纯静态 Worker：直接托管 dist 构建产物。
+  // SPA 回退靠 not_found_handling 实现，不再需要 public/_redirects
+  // （Pages 专用的 _redirects 在 Workers 下会报 100324 infinite loop）。
+  "assets": {
+    "directory": "dist",
+    "not_found_handling": "single-page-application"
+  },
+  // 关掉 workers.dev，只走自定义域。绑定时 wrangler 会自动建 AAAA 100:: 占位记录。
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    { "pattern": "img.taojun.top", "custom_domain": true }
+  ]
+}
