@@ -29,6 +29,9 @@ jobs:
           clean: false # 保留 node_modules 加速构建
 
       - name: Build + Deploy
+        env:
+          # 账号 ID 走 secret，不写进仓库（仓库是公开的）
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           export PATH=/usr/local/bin:$PATH
           npm ci --no-audit --no-fund
@@ -36,5 +39,5 @@ jobs:
           # token 来自宿主机单一来源，避免写进仓库
           export CLOUDFLARE_API_TOKEN="$(cat /home/ubuntu/server/secrets/cloudflare/mcp-token 2>/dev/null \
             || grep '^CLOUDFLARE_API_TOKEN=' /home/ubuntu/server/secrets/cicd/.env | cut -d= -f2- | tr -d '\"')"
-          export CLOUDFLARE_ACCOUNT_ID="1b53bebb48213cfdf6e43cd71d931741"
+          export CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:?缺少 CLOUDFLARE_ACCOUNT_ID secret}"
           npx wrangler deploy
